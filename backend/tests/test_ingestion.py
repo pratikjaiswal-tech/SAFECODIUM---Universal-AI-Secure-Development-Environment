@@ -65,8 +65,8 @@ async def test_decompression_ratio_rejection(tmp_path: Path):
     dest = tmp_path / "bomb_target"
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
-        # Create repetitive data that compresses heavily
-        big_data = b"A" * 500000
+        # Create repetitive data > 10MB that compresses heavily (> 500:1 ratio)
+        big_data = b"0" * (12 * 1024 * 1024)
         z.writestr("huge_sparse.c", big_data)
     buf.seek(0)
 

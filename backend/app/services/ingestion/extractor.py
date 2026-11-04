@@ -8,7 +8,7 @@ from typing import List
 # Relaxed limits to support full repositories, game engines, textures, and large codebases
 MAX_UNCOMPRESSED_SIZE_BYTES = 5 * 1024 * 1024 * 1024  # 5 GB max decompressed
 MAX_FILE_COUNT = 500000                                # Up to 500,000 files per archive
-MAX_COMPRESSION_RATIO = 2000                           # Allows textures/sparse binary while stopping 10000:1 true bombs
+MAX_COMPRESSION_RATIO = 500                            # Allows textures/sparse binary while stopping 1000:1+ true bombs
 ALLOWED_EXTENSIONS = {
     ".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".hh",
     ".txt", ".md", ".json", ".yaml", ".yml", ".cmake", ".ini", ".conf",

@@ -8,6 +8,16 @@ from typing import Dict, List, Tuple
 from backend.app.core.config import settings
 
 C_EXTENSIONS = {".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".hh"}
+SUPPORTED_EXTENSIONS = {
+    # C/C++
+    ".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".hh",
+    # Python
+    ".py",
+    # Java
+    ".java",
+    # JavaScript / TypeScript
+    ".js", ".jsx", ".ts", ".tsx",
+}
 
 
 def _to_long_path(p: Path) -> str:
@@ -88,9 +98,13 @@ class WorkspaceManager:
 
     @staticmethod
     def detect_framework_type(root_dir: Path) -> str:
-        """Heuristically identifies IoT framework from files and headers."""
+        """Heuristically identifies framework from files and headers."""
         esp_markers = {"sdkconfig", "esp_err.h", "esp_wifi.h", "esp_system.h", "freertos/freeRTOS.h"}
         arduino_markers = {"Arduino.h", "sketch.ino"}
+
+        has_py = False
+        has_java = False
+        has_js = False
 
         long_root = _to_long_path(root_dir)
         for root, _, files in os.walk(long_root):
@@ -100,18 +114,31 @@ class WorkspaceManager:
                     return "esp_idf"
                 if f_lower in arduino_markers or f_lower.endswith(".ino"):
                     return "arduino"
+                if f_lower.endswith(".py"):
+                    has_py = True
+                elif f_lower.endswith(".java"):
+                    has_java = True
+                elif f_lower.endswith((".js", ".jsx", ".ts", ".tsx")):
+                    has_js = True
+
+        if has_py:
+            return "python"
+        if has_java:
+            return "java"
+        if has_js:
+            return "javascript"
 
         return "generic_c"
 
     @staticmethod
     def index_source_files(root_dir: Path) -> List[Dict[str, any]]:
-        """Scans directory and returns metadata for all C/C++ source and header files."""
+        """Scans directory and returns metadata for all supported source and header files."""
         indexed_files = []
         long_root = _to_long_path(root_dir)
         for root, _, files in os.walk(long_root):
             for file in files:
                 ext = Path(file).suffix.lower()
-                if ext in C_EXTENSIONS:
+                if ext in SUPPORTED_EXTENSIONS:
                     full_path = os.path.join(root, file)
                     clean_root = str(root_dir.resolve())
                     clean_full = full_path.replace("\\\\?\\", "")

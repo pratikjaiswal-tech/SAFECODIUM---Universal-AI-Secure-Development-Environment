@@ -58,6 +58,7 @@ class ProjectResponse(BaseModel):
     shadow_path: Optional[str] = None
     file_count: int
     is_active: bool
+    owner_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

@@ -64,7 +64,12 @@ async def upload_project(
             safe_extract_zip(temp_upload_path, original_dir)
             source_type = "zip"
 
-        elif file_ext in {".c", ".cpp", ".cc", ".cxx", ".h", ".hpp"}:
+        elif file_ext in {
+            ".c", ".cpp", ".cc", ".cxx", ".h", ".hpp",
+            ".py",
+            ".java",
+            ".js", ".jsx", ".ts", ".tsx"
+        }:
             dest_file = (original_dir / raw_filename).resolve()
             if not dest_file.is_relative_to(original_dir.resolve()):
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid destination path")
@@ -75,7 +80,7 @@ async def upload_project(
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Unsupported file format '{file_ext}'. Upload a .zip archive or C/C++ source file."
+                detail=f"Unsupported file format '{file_ext}'. Upload a .zip archive or supported source file (.c, .cpp, .h, .py, .java, .js, .ts)."
             )
 
         WorkspaceManager.sync_to_shadow(original_dir, shadow_dir)
@@ -89,7 +94,7 @@ async def upload_project(
             shutil.rmtree(shadow_dir.parent, ignore_errors=True)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No supported C/C++ firmware files found in uploaded archive. Upload an archive containing .c, .cpp, or .h files."
+                detail="No supported source files found in uploaded archive. Upload an archive containing .c, .cpp, .h, .py, .java, or .js files."
             )
 
         project = Project(
@@ -109,7 +114,7 @@ async def upload_project(
 
         return ApiResponse(
             success=True,
-            message=f"Successfully ingested {project_name} ({len(indexed_files)} C/C++ files indexed)",
+            message=f"Successfully ingested {project_name} ({len(indexed_files)} files indexed)",
             data=ProjectResponse.model_validate(project),
         )
 
