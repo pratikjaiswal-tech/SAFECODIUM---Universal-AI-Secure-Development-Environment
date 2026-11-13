@@ -1,0 +1,15 @@
+{
+  "name": "safecodium-desktop",
+  "version": "0.1.0",
+  "description": "SAFECODIUM — Universal AI-Powered Secure Development IDE (Desktop)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^33.2.1"
+  }
+}
+

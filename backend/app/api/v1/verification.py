@@ -158,6 +158,7 @@ async def trigger_sanitizer_verification(patch_id: str, db: AsyncSession = Depen
         patch_id=patch.id,
         original_file_path=str(orig_path),
         shadow_file_path=str(shadow_path),
+        target_cwe=vuln.cwe_id,
     )
 
     ver_res = await db.execute(select(Verification).where(Verification.patch_id == patch.id))

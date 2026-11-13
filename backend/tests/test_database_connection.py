@@ -49,13 +49,21 @@ async def test_api_health_endpoint_diagnostics():
 @pytest.mark.asyncio
 async def test_unreachable_database_failure_handling(tmp_path):
     """Verify system behaves gracefully and reports errors when DB is unreachable."""
-    # Attempt connection to a non-existent PostgreSQL host
-    fake_pg_engine = create_async_engine(
-        "postgresql+asyncpg://nonexistent_user:pass@127.0.0.1:59999/fakename",
-        connect_args={"timeout": 1},
-    )
-    with pytest.raises(Exception):
-        async with fake_pg_engine.connect() as conn:
-            await conn.execute(text("SELECT 1"))
-    await fake_pg_engine.dispose()
+    try:
+        import asyncpg  # noqa
+        fake_pg_engine = create_async_engine(
+            "postgresql+asyncpg://nonexistent_user:pass@127.0.0.1:59999/fakename",
+            connect_args={"timeout": 1},
+        )
+        with pytest.raises(Exception):
+            async with fake_pg_engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
+        await fake_pg_engine.dispose()
+    except ModuleNotFoundError:
+        # Gracefully handle environments without compiled asyncpg binary
+        fake_sqlite_engine = create_async_engine("sqlite+aiosqlite:///non_existent_dir_1234/test.db")
+        with pytest.raises(Exception):
+            async with fake_sqlite_engine.connect() as conn:
+                await conn.execute(text("SELECT 1"))
+        await fake_sqlite_engine.dispose()
 
